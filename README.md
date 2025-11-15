@@ -1,155 +1,159 @@
-# 💊 Substractum — Gestão de Manipulados (React + Vite + Supabase)
+# 💊 Substractum — Gestão de Manipulados  
+### React + Vite + Supabase + Tailwind + shadcn/ui
 
-O **Substractum** é um sistema web criado para apoiar a **Substractum**, empresa farmacêutica de **medicamentos manipulados**, na organização e rastreabilidade de pedidos, fórmulas e etapas produtivas.  
-Este repositório contém um front‑end **React + TypeScript** com **Vite**, **Tailwind CSS** e componentes **shadcn/ui**, integrado ao **Supabase** para autenticação e dados.
+<div align="center">
 
----
+![Status](https://img.shields.io/badge/STATUS-ATIVO-brightgreen?style=for-the-badge)
+![Private](https://img.shields.io/badge/REPOSIT%C3%93RIO-PRIVADO-red?style=for-the-badge)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase)
+![Tailwind](https://img.shields.io/badge/Tailwind-38BDF8?style=for-the-badge&logo=tailwindcss)
 
-## 🎯 Motivação do Projeto
 
-A Substractum enfrentava desafios como:
-- Falta de **controle centralizado** de fórmulas e pedidos;
-- Dificuldade em acompanhar **status de produção/entrega** e insumos;
-- Processos manuais suscetíveis a **erros de digitação** e **inconsistências**;
-- Exigência de **rastreabilidade** para atender às normas sanitárias.
-
-O projeto nasceu para **reduzir erros**, **acelerar o atendimento** e garantir **confiabilidade e auditoria** dos registros, oferecendo uma base tecnológica moderna e escalável.
+</div>
 
 ---
 
-## 🧪 Como este projeto ajuda a Substractum
+# 📝 Descrição
 
-- **Rastreabilidade ponta a ponta**: pedidos, lotes, insumos e responsáveis por etapa;
-- **Produtividade de equipe**: telas otimizadas, validações e automações;
-- **Qualidade & Compliance**: registros consistentes, trilhas de auditoria e separação de perfis de acesso;
-- **Relatórios/Indicadores**: base para métricas de produção, tempo de ciclo e perdas;
-- **Integração**: arquitetura preparada para compor com estoque, fiscal ou CRM via APIs.
+O **Substractum** é um sistema web destinado a **farmácias de manipulação**, oferecendo:
 
----
-
-## 🧱 Stack Técnica (detectada no ZIP)
-
-- **Vite + React + TypeScript** (`package.json`, `vite.config.ts`, `src/`)
-- **Tailwind CSS** (`tailwind.config.ts`, `postcss.config.js`)
-- **shadcn/ui** (`components.json`)
-- **Supabase** (`supabase/`, variáveis `VITE_SUPABASE_*`)
-- **ESLint** (`eslint.config.js`)
-- Lockfile: **`package-lock.json`** (recomendado usar **npm**)
-
-> Principais entradas: `src/main.tsx` e `src/App.tsx`.
+- Gestão de **pedidos**  
+- Controle de **fórmulas e insumos**  
+- Acompanhamento de **produção** e etapas  
+- Rastreabilidade e auditoria  
+- Perfis com diferentes permissões  
+- UI moderna e responsiva  
 
 ---
 
-## ⚙️ Pré‑requisitos
+# 🧭 Arquitetura — Diagramas (Mermaid)
 
-- **Node.js** 18 ou 20 (LTS recomendado).  
-- **npm** 9+ (use npm para respeitar o `package-lock.json`).
-
-> Opcional: **Bun** também está presente (`bun.lockb`), mas o lockfile oficial é do npm — mantenha consistência usando **npm**.
-
----
-
-## 🔐 Configuração de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto com as seguintes chaves (não exponha valores sensíveis):
-
-```bash
-VITE_SUPABASE_PROJECT_ID=...
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_PUBLISHABLE_KEY=...
+## 📌 1. Arquitetura Geral
+```mermaid
+flowchart LR
+    A[Frontend React] --> B[Vite Build]
+    A --> C[Supabase Auth]
+    A --> D[Supabase Database]
+    A --> E[Supabase Storage]
+    D --> F[RLS Policies]
 ```
 
-**Dicas**
-- Nunca commitar `.env` em repositórios públicos;
-- Para ambientes diferentes (dev/homolog/prod), use arquivos `.env.*` do Vite ou variáveis de ambiente no servidor.
+## 📌 2. Fluxo Completo: Pedido → Produção → Entrega
+```mermaid
+flowchart LR
+    A[Cliente cria pedido] --> B[Recepção valida pedido]
+    B --> C[Farmacêutico revisa fórmula]
+    C --> D[Manipulação]
+    D --> E[Controle de Qualidade]
+    E --> F[Liberação]
+    F --> G[Entrega ao Cliente]
+```
+
+## 📌 3. Fluxo de Autenticação
+```mermaid
+sequenceDiagram
+    Usuario->>Frontend: Login (email/senha)
+    Frontend->>Supabase Auth: requestToken()
+    Supabase Auth-->>Frontend: JWT Token
+    Frontend->>Supabase DB: query with JWT
+    Supabase DB-->>Frontend: data
+```
+
+## 📌 4. ERD do Banco (Supabase)
+```mermaid
+erDiagram
+    USERS ||--o{ ORDERS : "cria"
+    ORDERS ||--|{ FORMULAS : "possui"
+    FORMULAS ||--|{ INGREDIENTS : "usa"
+    ORDERS {
+        uuid id
+        uuid user_id
+        text status
+        timestamp created_at
+    }
+    FORMULAS {
+        uuid id
+        uuid order_id
+        text name
+        text description
+    }
+    INGREDIENTS {
+        uuid id
+        uuid formula_id
+        text name
+        numeric quantity
+        text unit
+    }
+```
+
+## 📌 5. Diagrama de Componentes Frontend
+```mermaid
+flowchart TB
+    App[App.tsx] --> Router[Rotas]
+    Router --> DashboardPage
+    Router --> OrdersPage
+    Router --> FormulaPage
+    DashboardPage --> StatsWidget
+    OrdersPage --> OrderCard
+    FormulaPage --> IngredientList
+```
 
 ---
 
-## 🚀 Como rodar localmente (compilar/executar)
+# 🧪 Testes Automatizados (Vitest)
 
-1) **Instalar dependências**
+### Instalar
+```bash
+npm install -D vitest @testing-library/react @testing-library/jest-dom
+```
+
+### Configuração
+```ts
+test: {
+  globals: true,
+  environment: "jsdom",
+  setupFiles: "./src/tests/setup.ts"
+}
+```
+
+### Exemplo
+```tsx
+import { render, screen } from "@testing-library/react";
+import App from "../App";
+
+test("renders Substractum title", () => {
+  render(<App />);
+  expect(screen.getByText(/Substractum/i)).toBeInTheDocument();
+});
+```
+
+---
+
+# 🚀 Como rodar localmente
+
 ```bash
 npm install
-```
-
-2) **Executar em desenvolvimento**
-```bash
 npm run dev
-```
-- A aplicação ficará disponível por padrão em **http://localhost:8080**.
-
-3) **Build de produção**
-```bash
 npm run build
-```
-- Artefatos gerados em `dist/`.
-
-4) **Pré‑visualização do build**
-```bash
 npm run preview
 ```
-- Servidor de preview em **http://localhost:8080**.
-
-5) **Lint (opcional)**
-```bash
-npm run lint
-```
 
 ---
 
-## 📁 Estrutura relevante
+# 🇺🇸 English Version
 
-```
-substractum/
-├─ .env                         # variáveis locais (não commitar)
-├─ package.json                 # scripts: dev, build, preview, lint
-├─ vite.config.ts               # Vite config
-├─ tailwind.config.ts           # Tailwind config
-├─ postcss.config.js
-├─ components.json              # shadcn/ui
-├─ public/                      # assets estáticos
-├─ src/
-│  ├─ main.tsx                  # bootstrap do app
-│  ├─ App.tsx                   # raiz da aplicação
-│  └─ ...                       # componentes/páginas
-└─ supabase/
-   ├─ config.toml               # config do Supabase CLI (se usado)
-   └─ migrations/               # migrações (se aplicável)
-```
+## 💊 Substractum — Compounding Pharmacy Management System
+
+This system was designed for compounding pharmacies to manage:
+
+- Orders, formulas, ingredients  
+- Production workflow  
+- Traceability & auditing  
 
 ---
 
-## 🧰 Deploy (visão geral)
+# 📄 License
 
-- **Static hosting** para `dist/`: Vercel, Netlify, Cloudflare Pages, S3+CloudFront etc.
-- **Variáveis de ambiente**: configure `VITE_SUPABASE_*` no painel do provedor de deploy.
-- **Headers de segurança**: aplique CSP, X-Frame-Options, HSTS quando possível.
-- **Supabase**: garanta políticas RLS apropriadas e chaves rotacionadas.
+Private proprietary repository.
 
----
-
-## ✅ Boas práticas para ambiente farmacêutico
-
-- **Logs de auditoria** para ações críticas (criar/editar fórmula, liberar lote, ajustes de estoque).
-- **Controles de acesso** (RBAC): separar papéis (manipulador, farmacêutico responsável, atendimento, auditoria).
-- **Validações** de campos críticos (unidades, concentrações, datas de validade, lote/partida).
-- **Backups e restauração** testados regularmente.
-- **Conformidade** com requisitos da vigilância sanitária local (procedimentos padrão, registros assinados e carimbados quando necessário).
-
----
-
-## 🗺️ Roadmap sugerido
-
-- [ ] Trilhas de auditoria visíveis por lote/pedido
-- [ ] Integração com módulo de estoque/insumos
-- [ ] Assinatura eletrônica para etapas críticas
-- [ ] Relatórios de tempo de ciclo, perdas e retrabalho
-- [ ] Alertas de validade e rastreabilidade por lote
-
----
-
-## 📄 Licença / Uso
-
-Este projeto foi desenvolvido para a **Substractum**. O uso, distribuição e reprodução são **restritos** e dependem de autorização da empresa.
-
----
