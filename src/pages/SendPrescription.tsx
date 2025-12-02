@@ -43,7 +43,7 @@ const SendPrescription = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
 
       if (file.size > maxSize) {
         toast({
@@ -61,7 +61,6 @@ const SendPrescription = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -70,7 +69,6 @@ const SendPrescription = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form
     const result = prescriptionSchema.safeParse(formData);
 
     if (!result.success) {
@@ -99,7 +97,6 @@ const SendPrescription = () => {
     try {
       let filePath = null;
 
-      // Upload file to Supabase Storage if provided
       if (selectedFile) {
         const fileExt = selectedFile.name.split(".").pop();
         const fileName = `${Date.now()}.${fileExt}`;
@@ -113,7 +110,6 @@ const SendPrescription = () => {
         }
       }
 
-      // Save request to database
       const { error: dbError } = await supabase.from("prescription_requests" as any).insert({
         user_id: user.id,
         name: formData.name,
@@ -127,7 +123,6 @@ const SendPrescription = () => {
         throw new Error("Erro ao salvar solicitação");
       }
 
-      // Build WhatsApp message
       const whatsappNumber = "5561983472867"; // Número da farmácia
       let message = `*Solicitação de Orçamento*\n\n`;
       message += `*Nome:* ${encodeURIComponent(formData.name)}\n`;
@@ -148,10 +143,8 @@ const SendPrescription = () => {
         description: "Sua solicitação foi salva e você será redirecionado para o WhatsApp",
       });
 
-      // Open WhatsApp
       window.open(whatsappUrl, "_blank");
 
-      // Reset form
       setFormData({ name: "", phone: "", message: "" });
       setSelectedFile(null);
     } catch (error: any) {

@@ -26,13 +26,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         
         if (session?.user) {
-          // Defer the role fetching to avoid blocking the auth callback
           setTimeout(() => {
             fetchUserRole(session.user.id, session.user.email || '');
           }, 0);
@@ -44,7 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       
@@ -77,7 +74,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return role as 'admin' | 'seller' | 'user';
     } catch (error) {
       console.error('Error fetching user role:', error);
-      // Default to user role if fetch fails
       setUser({
         id: userId,
         email: email,
@@ -128,7 +124,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data.session && data.user) {
-        // Fetch user role
         const role = await fetchUserRole(data.user.id, data.user.email || '');
         const authUser: AuthUser = {
           id: data.user.id,

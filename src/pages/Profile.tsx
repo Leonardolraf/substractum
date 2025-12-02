@@ -38,7 +38,6 @@ const Profile = () => {
       return;
     }
 
-    // Redirect based on user role
     if (user.role === 'admin') {
       navigate('/profile-admin');
       return;
@@ -48,7 +47,6 @@ const Profile = () => {
       return;
     }
 
-    // Load profile data
     loadProfileData();
     loadUserStats();
   }, [user, navigate]);
@@ -90,7 +88,6 @@ const Profile = () => {
     if (!user) return;
 
     try {
-      // Get total orders and calculate total spent
       const { data: orders, error } = await (supabase as any)
         .from('orders')
         .select('total, created_at')
@@ -110,7 +107,7 @@ const Profile = () => {
         setStats({
           totalOrders,
           totalSpent,
-          memberSince: oldestOrder 
+          memberSince: oldestOrder
             ? new Date(oldestOrder).getFullYear().toString()
             : new Date().getFullYear().toString()
         });
@@ -127,7 +124,7 @@ const Profile = () => {
     }));
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
@@ -216,59 +213,58 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="full_name">Nome Completo</Label>
-                        <Input
-                          id="full_name"
-                          value={profileData.full_name}
-                          onChange={(e) => handleInputChange("full_name", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="username">Nome de Usuário</Label>
-                        <Input
-                          id="username"
-                          value={profileData.username}
-                          onChange={(e) => handleInputChange("username", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="phone">Telefone</Label>
-                        <Input
-                          id="phone"
-                          value={profileData.phone}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={profileData.username || ""}
-                          disabled
-                          className="bg-gray-100"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="role">Tipo de Conta</Label>
-                        <Input
-                          id="role"
-                          value="Cliente"
-                          disabled
-                          className="bg-gray-100"
-                        />
-                      </div>
+                  <form onSubmit={handleSubmit} className="space-y-4">                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="full_name">Nome Completo</Label>
+                      <Input
+                        id="full_name"
+                        value={profileData.full_name}
+                        onChange={(e) => handleInputChange("full_name", e.target.value)}
+                        disabled={!isEditing}
+                      />
                     </div>
+
+                    <div>
+                      <Label htmlFor="username">Nome de Usuário</Label>
+                      <Input
+                        id="username"
+                        value={profileData.username}
+                        onChange={(e) => handleInputChange("username", e.target.value)}
+                        disabled={!isEditing}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone">Telefone</Label>
+                      <Input
+                        id="phone"
+                        value={profileData.phone}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        disabled={!isEditing}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profileData.username || ""}
+                        disabled
+                        className="bg-gray-100"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="role">Tipo de Conta</Label>
+                      <Input
+                        id="role"
+                        value="Cliente"
+                        disabled
+                        className="bg-gray-100"
+                      />
+                    </div>
+                  </div>
 
                     {isEditing && (
                       <div className="flex justify-end pt-4">

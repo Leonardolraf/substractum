@@ -33,17 +33,14 @@ const SalesReport = () => {
     try {
       setLoading(true);
 
-      // Fetch orders
       const { data: orders } = await (supabase as any)
         .from('orders')
         .select('*');
 
-      // Fetch products
       const { data: products } = await (supabase as any)
         .from('products')
         .select('*');
 
-      // Fetch profiles (customers)
       const { data: profiles } = await (supabase as any)
         .from('profiles')
         .select('*');

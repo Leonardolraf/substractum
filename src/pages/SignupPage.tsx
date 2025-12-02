@@ -6,13 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -30,7 +34,7 @@ const SignupPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Erro",
@@ -42,14 +46,24 @@ const SignupPage = () => {
 
     setLoading(true);
 
-    // Simulate registration process
-    setTimeout(() => {
-      setLoading(false);
+    const result = await signup(formData.email, formData.password, formData.fullName);
+
+    setLoading(false);
+
+    if (result.success) {
       toast({
         title: "Cadastro realizado com sucesso!",
         description: "Conta criada como Cliente",
       });
-    }, 2000);
+
+      navigate("/");
+    } else {
+      toast({
+        title: "Erro no cadastro",
+        description: result.error || "Não foi possível criar sua conta.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -68,32 +82,31 @@ const SignupPage = () => {
             Preencha os dados para criar sua conta na plataforma
           </CardDescription>
         </CardHeader>
-        
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nome Completo</Label>
-                <Input
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  placeholder="Seu nome completo"
-                  required
-                />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF</Label>
-                <Input
-                  id="cpf"
-                  value={formData.cpf}
-                  onChange={(e) => handleInputChange('cpf', e.target.value)}
-                  placeholder="000.000.000-00"
-                  required
-                />
-              </div>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Nome Completo</Label>
+              <Input
+                id="fullName"
+                value={formData.fullName}
+                onChange={(e) => handleInputChange('fullName', e.target.value)}
+                placeholder="Seu nome completo"
+                required
+              />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cpf">CPF</Label>
+              <Input
+                id="cpf"
+                value={formData.cpf}
+                onChange={(e) => handleInputChange('cpf', e.target.value)}
+                placeholder="000.000.000-00"
+                required
+              />
+            </div>
+          </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -179,9 +192,9 @@ const SignupPage = () => {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full bg-green-600 hover:bg-green-700" 
+            <Button
+              type="submit"
+              className="w-full bg-green-600 hover:bg-green-700"
               disabled={loading}
             >
               {loading ? 'Cadastrando...' : 'Criar Conta'}

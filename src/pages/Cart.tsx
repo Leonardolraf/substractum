@@ -18,7 +18,7 @@ const Cart = () => {
   const [prescription, setPrescription] = useState<File | null>(null);
 
   const handleContinueShopping = () => {
-    navigate("/products"); // rota que já existe em App.tsx
+    navigate("/products");
   };
 
   const handlePrescriptionUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,12 +87,16 @@ const Cart = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {items.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                      <div
+                        key={item.id}
+                        className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:gap-4"
+                      >
                         <img
                           src={item.image}
                           alt={item.name}
                           className="w-16 h-16 object-cover rounded"
                         />
+
                         <div className="flex-1">
                           <h3 className="font-medium">{item.name}</h3>
                           <p className="text-sm text-gray-600">{item.supplier}</p>
@@ -100,45 +104,59 @@ const Cart = () => {
                             R$ {item.price.toFixed(2)}
                           </p>
                         </div>
-                        <div className="flex items-center space-x-2">
+
+                        {/* CONTROLES (botões + input) */}
+                        <div className="flex items-center justify-between gap-2 sm:flex-col sm:items-end sm:gap-2">
+                          {/* Quantidade */}
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7 sm:h-8 sm:w-8"
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+
+                            <Input
+                              type="number"
+                              value={item.quantity}
+                              onChange={(e) =>
+                                updateQuantity(item.id, parseInt(e.target.value) || 1)
+                              }
+                              className="h-8 w-12 px-1 py-1 text-xs text-center sm:h-9 sm:w-16 sm:text-sm"
+                              min={1}
+                            />
+
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7 sm:h-8 sm:w-8"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
+
+                          {/* Botão de remover */}
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              removeFromCart(item.id);
+                              toast({
+                                title: "Item removido",
+                                description: "O item foi removido do seu carrinho",
+                              });
+                            }}
+                            className="h-7 w-7 text-red-600 hover:text-red-700 sm:h-8 sm:w-8"
                           >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <Input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
-                            className="w-16 text-center"
-                            min="1"
-                          />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            removeFromCart(item.id);
-                            toast({
-                              title: "Item removido",
-                              description: "O item foi removido do seu carrinho",
-                            });
-                          }}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
                       </div>
                     ))}
+
                   </CardContent>
                 </Card>
               </div>

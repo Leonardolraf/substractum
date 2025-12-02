@@ -47,8 +47,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return [
       ...current,
       {
-        id: `${Date.now()}`,        // id DO CARRINHO (pode ser qualquer coisa)
-        productId: product.id,      // UUID REAL DO PRODUTO
+        id: `${Date.now()}`,         
+        productId: product.id,    
         name: product.name,
         price: product.price,
         quantity: 1,

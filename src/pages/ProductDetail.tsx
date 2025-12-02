@@ -22,8 +22,6 @@ import {
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ProductReviews from "@/components/products/ProductReviews";
-
-// Import all product images
 import compostoAnteQuedaImg from "@/assets/products/composto-ante-queda.jpg";
 import compostoAnteGotaImg from "@/assets/products/composto-ante-gota.jpg";
 import compostoImunidadeImg from "@/assets/products/composto-imunidade.jpg";

@@ -20,7 +20,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchOrders();
     
-    // Set up real-time subscription
     const channel = supabase
       .channel('orders-changes')
       .on(

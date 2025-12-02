@@ -77,48 +77,47 @@ const ProfileAdmin = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="name">Nome Completo</Label>
-                        <Input
-                          id="name"
-                          value={profileData.name}
-                          onChange={(e) => handleInputChange("name", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={profileData.email}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="phone">Telefone</Label>
-                        <Input
-                          id="phone"
-                          value={profileData.phone}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="role">Função</Label>
-                        <Input
-                          id="role"
-                          value="Administrador"
-                          disabled
-                        />
-                      </div>
+                  <form onSubmit={handleSubmit} className="space-y-4">                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Nome Completo</Label>
+                      <Input
+                        id="name"
+                        value={profileData.name}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        disabled={!isEditing}
+                      />
                     </div>
+
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        disabled={!isEditing}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone">Telefone</Label>
+                      <Input
+                        id="phone"
+                        value={profileData.phone}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        disabled={!isEditing}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="role">Função</Label>
+                      <Input
+                        id="role"
+                        value="Administrador"
+                        disabled
+                      />
+                    </div>
+                  </div>
 
                     {isEditing && (
                       <Button type="submit" className="bg-red-600 hover:bg-red-700">

@@ -12,19 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-import amoxicilinaImg from "@/assets/amoxicilina.jpg";
-import dipronaImg from "@/assets/dipirona.jpg";
-import ibuprofenoImg from "@/assets/ibuprofeno.jpg";
 
-// Produtos manipulados
+// Produtos 
 import compostoAnteQuedaImg from "@/assets/products/composto-ante-queda.jpg";
 import compostoAnteGotaImg from "@/assets/products/composto-ante-gota.jpg";
 import compostoImunidadeImg from "@/assets/products/composto-imunidade.jpg";
 import compostoMenopausaImg from "@/assets/products/composto-menopausa.jpg";
 import baseFortalecedoraImg from "@/assets/products/base-fortalecedora.jpg";
 import xaropeGuacoImg from "@/assets/products/xarope-guaco.jpg";
-
-// Suplementos
 import vitaminaD3Img from "@/assets/products/vitamina-d3.jpg";
 import magnesioImg from "@/assets/products/magnesio.jpg";
 import colagenoImg from "@/assets/products/colageno.jpg";
@@ -113,9 +108,7 @@ const Products = () => {
       "Oli-Ola 30 Cápsulas": oliOlaImg,
       "Cúrcuma 60 Cápsulas": curcumaImg,
       "Nutri Ment 30 Cápsulas": nutriMentImg,
-      amoxicilina: amoxicilinaImg,
-      dipirona: dipronaImg,
-      ibuprofeno: ibuprofenoImg,
+    
     };
 
     return productImages[name] || "/placeholder.svg";

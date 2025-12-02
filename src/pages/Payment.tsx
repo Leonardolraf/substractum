@@ -32,7 +32,6 @@ const Payment = () => {
     cep: ""
   });
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
       toast({
@@ -44,7 +43,6 @@ const Payment = () => {
     }
   }, [user, navigate, toast]);
 
-  // Get cart data from location state or use fallback
   const cartData = location.state || {
     cartItems: [
       {
@@ -119,7 +117,6 @@ const Payment = () => {
     setIsProcessing(true);
 
     try {
-      // Create order in database
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -134,7 +131,6 @@ const Payment = () => {
 
       if (orderError) throw orderError;
 
-      // Create order items
       const orderItems = cartItems.map(item => ({
         order_id: order.id,
         product_id: item.productId,
@@ -148,7 +144,6 @@ const Payment = () => {
 
       if (itemsError) throw itemsError;
 
-      // Clear cart after successful order
       clearCart();
 
       toast({
@@ -156,7 +151,6 @@ const Payment = () => {
         description: "Seu pedido foi processado com sucesso.",
       });
 
-      // Navigate to order completed page with real order ID
       navigate(`/order-completed/${order.id}`);
 
     } catch (error: any) {

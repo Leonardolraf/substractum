@@ -21,7 +21,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast({
         title: "Campos obrigatórios",
@@ -34,7 +34,7 @@ const LoginPage = () => {
     setLoading(true);
 
     const result = await login(email, password);
-    
+
     setLoading(false);
 
     if (result.success && result.user) {
@@ -42,8 +42,7 @@ const LoginPage = () => {
         title: "Login realizado!",
         description: "Bem-vindo de volta.",
       });
-      
-      // Redirecionar baseado no role do usuário
+
       if (result.user.role === 'admin') {
         navigate('/admin');
       } else if (result.user.role === 'seller') {
@@ -76,20 +75,19 @@ const LoginPage = () => {
             Faça login para acessar sua conta
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">            <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
@@ -114,9 +112,9 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full bg-green-600 hover:bg-green-700" 
+            <Button
+              type="submit"
+              className="w-full bg-green-600 hover:bg-green-700"
               disabled={loading}
             >
               {loading ? "Entrando..." : "Entrar"}

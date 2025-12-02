@@ -101,7 +101,6 @@ const Vendas = () => {
                          sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          sale.orderId.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || sale.status === statusFilter;
-    // Simple date filter - in real app, implement proper date filtering
     const matchesDate = dateFilter === "all" || true;
     return matchesSearch && matchesStatus && matchesDate;
   });

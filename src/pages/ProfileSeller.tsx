@@ -80,48 +80,47 @@ const ProfileSeller = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="name">Nome Completo</Label>
-                        <Input
-                          id="name"
-                          value={profileData.name}
-                          onChange={(e) => handleInputChange("name", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={profileData.email}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="phone">Telefone</Label>
-                        <Input
-                          id="phone"
-                          value={profileData.phone}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
-                          disabled={!isEditing}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="role">Função</Label>
-                        <Input
-                          id="role"
-                          value="Vendedor"
-                          disabled
-                        />
-                      </div>
+                  <form onSubmit={handleSubmit} className="space-y-4">                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Nome Completo</Label>
+                      <Input
+                        id="name"
+                        value={profileData.name}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        disabled={!isEditing}
+                      />
                     </div>
+
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        disabled={!isEditing}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone">Telefone</Label>
+                      <Input
+                        id="phone"
+                        value={profileData.phone}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        disabled={!isEditing}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="role">Função</Label>
+                      <Input
+                        id="role"
+                        value="Vendedor"
+                        disabled
+                      />
+                    </div>
+                  </div>
 
                     {isEditing && (
                       <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
@@ -151,7 +150,7 @@ const ProfileSeller = () => {
                       <span className="text-lg font-bold text-green-600">R$ {profileData.currentSales.toLocaleString()}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div 
+                      <div
                         className="bg-blue-600 h-3 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(salesPercentage, 100)}%` }}
                       ></div>
