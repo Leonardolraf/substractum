@@ -92,7 +92,7 @@ const Header = () => {
                   
                   <Button 
                     size="sm" 
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate('/signup')}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     Cadastrar

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,38 +6,222 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Settings, User, Shield, Database, Activity, Zap, ShoppingCart, Package, TrendingUp, HelpCircle } from "lucide-react";
+import {
+  Settings,
+  User,
+  Shield,
+  Database,
+  Activity,
+  Zap,
+  ShoppingCart,
+  Package,
+  TrendingUp,
+  HelpCircle,
+  Plus,
+  Users,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { supabase } from "@/integrations/supabase/client";
+
+type ProfileData = {
+  id: string | null;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  permissions: string[];
+};
+
+type SystemStats = {
+  totalUsers: number;
+  totalProducts: number;
+  ordersToday: number;
+};
 
 const ProfileAdmin = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "Administrador Sistema",
-    email: "admin@farmacia.com",
-    phone: "+55 61 98347-2867",
+  const [profileData, setProfileData] = useState<ProfileData>({
+    id: null,
+    name: "",
+    email: "",
+    phone: "",
     role: "admin",
-    permissions: ["manage_users", "manage_products", "view_analytics", "system_settings"]
+    permissions: ["manage_users", "manage_products", "view_analytics", "system_settings"],
   });
 
-  const handleInputChange = (field: string, value: string) => {
-    setProfileData(prev => ({
+  const [stats, setStats] = useState<SystemStats>({
+    totalUsers: 0,
+    totalProducts: 0,
+    ordersToday: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  const quickActions = [
+    {
+      title: "Gerenciar Estoque",
+      description: "Controlar níveis de estoque",
+      icon: Package,
+      onClick: () => navigate("/my-products"),
+    },
+    {
+      title: "Gerenciar Usuários",
+      description: "Administrar contas de usuários",
+      icon: Users,
+      onClick: () => navigate("/admin"),
+    },
+    {
+      title: "Configurações",
+      description: "Ajustar configurações do sistema",
+      icon: Settings,
+      onClick: () => navigate("/profile-admin"),
+    },
+  ];
+
+
+  const handleInputChange = (field: keyof ProfileData, value: string) => {
+    setProfileData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Perfil atualizado!",
-      description: "Suas informações foram salvas com sucesso."
-    });
-    setIsEditing(false);
+
+    try {
+      if (!profileData.id) {
+        throw new Error("Usuário não encontrado.");
+      }
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: profileData.name,
+          email: profileData.email,
+          phone: profileData.phone,
+        })
+        .eq("id", profileData.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Perfil atualizado!",
+        description: "Suas informações foram salvas com sucesso.",
+      });
+      setIsEditing(false);
+    } catch (err: any) {
+      console.error(err);
+      toast({
+        title: "Erro ao atualizar perfil",
+        description: err.message ?? "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    }
   };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Usuário logado
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError) throw userError;
+        if (!user) return;
+
+        // Perfil + roles
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select(
+            `
+            id,
+            full_name,
+            username,
+            email,
+            phone,
+            user_roles ( role )
+          `
+          )
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        const roles = profile?.user_roles ?? [];
+        const mainRole = roles[0]?.role ?? "admin";
+
+        const resolvedRoleLabel =
+          mainRole === "admin" ? "Administrador" : mainRole === "seller" ? "Vendedor" : "Usuário";
+
+        const resolvedPermissions =
+          mainRole === "admin"
+            ? ["manage_users", "manage_products", "view_analytics", "system_settings"]
+            : mainRole === "seller"
+              ? ["manage_products", "view_analytics"]
+              : ["view_analytics"];
+
+        setProfileData({
+          id: profile.id,
+          name:
+            profile.full_name ||
+            profile.username ||
+            user.email ||
+            "Administrador Sistema",
+          email: profile.email || user.email || "",
+          phone: profile.phone || "",
+          role: resolvedRoleLabel,
+          permissions: resolvedPermissions,
+        });
+
+        // -------- Estatísticas do sistema --------
+
+        // Total de usuários
+        const { count: totalUsers, error: usersError } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true });
+
+        if (usersError) throw usersError;
+
+        // Total de produtos (ajuste o nome da tabela se for diferente)
+        const { count: totalProducts, error: productsError } = await supabase
+          .from("products")
+          .select("*", { count: "exact", head: true });
+
+        if (productsError) throw productsError;
+
+        // Pedidos de hoje
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const { count: ordersToday, error: ordersError } = await supabase
+          .from("orders")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", startOfToday.toISOString());
+
+        if (ordersError) throw ordersError;
+
+        setStats({
+          totalUsers: totalUsers ?? 0,
+          totalProducts: totalProducts ?? 0,
+          ordersToday: ordersToday ?? 0,
+        });
+      } catch (err) {
+        console.error("Erro ao carregar dados do perfil admin:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
     <>
@@ -58,7 +242,7 @@ const ProfileAdmin = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              {/* Personal Information */}
+              {/* Informações pessoais */}
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
@@ -70,6 +254,7 @@ const ProfileAdmin = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => setIsEditing(!isEditing)}
+                      disabled={loading}
                     >
                       <Settings className="w-4 h-4 mr-2" />
                       {isEditing ? "Cancelar" : "Editar"}
@@ -77,50 +262,51 @@ const ProfileAdmin = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Nome Completo</Label>
-                      <Input
-                        id="name"
-                        value={profileData.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
-                        disabled={!isEditing}
-                      />
-                    </div>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="name">Nome Completo</Label>
+                        <Input
+                          id="name"
+                          value={profileData.name}
+                          onChange={(e) => handleInputChange("name", e.target.value)}
+                          disabled={!isEditing || loading}
+                        />
+                      </div>
 
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={profileData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        disabled={!isEditing}
-                      />
-                    </div>
+                      <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={profileData.email}
+                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          disabled={!isEditing || loading}
+                        />
+                      </div>
 
-                    <div>
-                      <Label htmlFor="phone">Telefone</Label>
-                      <Input
-                        id="phone"
-                        value={profileData.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
-                        disabled={!isEditing}
-                      />
-                    </div>
+                      <div>
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input
+                          id="phone"
+                          value={profileData.phone}
+                          onChange={(e) => handleInputChange("phone", e.target.value)}
+                          disabled={!isEditing || loading}
+                        />
+                      </div>
 
-                    <div>
-                      <Label htmlFor="role">Função</Label>
-                      <Input
-                        id="role"
-                        value="Administrador"
-                        disabled
-                      />
+                      <div>
+                        <Label htmlFor="role">Função</Label>
+                        <Input id="role" value={profileData.role} disabled />
+                      </div>
                     </div>
-                  </div>
 
                     {isEditing && (
-                      <Button type="submit" className="bg-red-600 hover:bg-red-700">
+                      <Button
+                        type="submit"
+                        className="bg-red-600 hover:bg-red-700"
+                        disabled={loading}
+                      >
                         Salvar Alterações
                       </Button>
                     )}
@@ -128,7 +314,7 @@ const ProfileAdmin = () => {
                 </CardContent>
               </Card>
 
-              {/* System Stats */}
+              {/* Estatísticas do Sistema */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -139,15 +325,21 @@ const ProfileAdmin = () => {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">156</div>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {stats.totalUsers}
+                      </div>
                       <div className="text-sm text-gray-600">Usuários Ativos</div>
                     </div>
                     <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">24</div>
+                      <div className="text-2xl font-bold text-green-600">
+                        {stats.totalProducts}
+                      </div>
                       <div className="text-sm text-gray-600">Produtos</div>
                     </div>
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">89</div>
+                      <div className="text-2xl font-bold text-purple-600">
+                        {stats.ordersToday}
+                      </div>
                       <div className="text-sm text-gray-600">Pedidos Hoje</div>
                     </div>
                   </div>
@@ -156,7 +348,7 @@ const ProfileAdmin = () => {
             </div>
 
             <div>
-              {/* Role & Permissions */}
+              {/* Permissões */}
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -167,14 +359,14 @@ const ProfileAdmin = () => {
                 <CardContent>
                   <div className="space-y-3">
                     <Badge variant="destructive" className="w-full justify-center py-2">
-                      ADMINISTRADOR
+                      {profileData.role.toUpperCase()}
                     </Badge>
                     <Separator />
                     <div className="space-y-2">
                       {profileData.permissions.map((permission, index) => (
                         <div key={index} className="flex items-center justify-between">
                           <span className="text-sm capitalize">
-                            {permission.replace('_', ' ')}
+                            {permission.replace("_", " ")}
                           </span>
                           <Badge variant="outline" className="text-xs">
                             Ativo
@@ -185,8 +377,6 @@ const ProfileAdmin = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Quick Actions */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -194,27 +384,37 @@ const ProfileAdmin = () => {
                     Ações Rápidas
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/quick-actions')}>
-                    <Zap className="mr-2 h-4 w-4" />
-                    Ações Rápidas
-                  </Button>
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/admin-dashboard')}>
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Ver Pedidos
-                  </Button>
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/my-products')}>
-                    <Package className="mr-2 h-4 w-4" />
-                    Meus Produtos
-                  </Button>
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/sales-report')}>
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Relatório de Vendas
-                  </Button>
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/help-center')}>
-                    <HelpCircle className="mr-2 h-4 w-4" />
-                    Central de Ajuda
-                  </Button>
+                <CardContent>
+                  <div className="grid grid-cols-1 gap-3">
+                    {quickActions.map((action, index) => {
+                      const Icon = action.icon;
+                      return (
+                        <Card
+                          key={index}
+                          className="hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={action.onClick}
+                        >
+                          <CardHeader className="py-3">
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-primary/10 rounded-lg">
+                                <Icon className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <CardTitle className="text-sm">
+                                  {action.title}
+                                </CardTitle>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="pt-0 pb-3">
+                            <p className="text-xs text-muted-foreground">
+                              {action.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             </div>

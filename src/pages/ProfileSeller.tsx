@@ -213,17 +213,14 @@ const ProfileSeller = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/quick-actions')}>
-                    <Zap className="mr-2 h-4 w-4" />
-                    Ações Rápidas
-                  </Button>
+                  
                   <Button variant="outline" className="w-full" onClick={() => navigate('/seller-dashboard')}>
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     Ver Pedidos
                   </Button>
                   <Button variant="outline" className="w-full" onClick={() => navigate('/my-products')}>
                     <Package className="mr-2 h-4 w-4" />
-                    Meus Produtos
+                    Gerenciar Estoque
                   </Button>
                   <Button variant="outline" className="w-full" onClick={() => navigate('/sales-report')}>
                     <TrendingUp className="mr-2 h-4 w-4" />

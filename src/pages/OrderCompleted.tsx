@@ -27,7 +27,7 @@ interface OrderData {
 }
 
 const OrderCompleted = () => {
-  const { orderId } = useParams(); // <- AGORA FUNCIONA SEM ESTADO
+  const { orderId } = useParams(); 
   const navigate = useNavigate();
   const { toast } = useToast();
   const [orderData, setOrderData] = useState<OrderData | null>(null);

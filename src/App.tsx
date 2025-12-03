@@ -58,6 +58,7 @@ function App() {
         <Route path="/orders" element={<ProtectedRoute requiredRole="seller"><OrdersPage /></ProtectedRoute>} />
         <Route path="/order-completed/:orderId" element={<ProtectedRoute><OrderCompleted /></ProtectedRoute>} />
         <Route path="/order/:id" element={<ProtectedRoute requiredRole="seller"><OrderDetailPage /></ProtectedRoute>} />
+        <Route path="/admin/orders/:orderId"element={<ProtectedRoute requiredRole="admin"><OrderDetailPage /></ProtectedRoute>}/>
         <Route path="/vendas" element={<ProtectedRoute requiredRole="seller"><Vendas /></ProtectedRoute>} />
         <Route path="/send-prescription" element={<SendPrescription />} />
         <Route path="/prescription-requests" element={<ProtectedRoute requiredRole="seller"><PrescriptionRequests /></ProtectedRoute>} />

@@ -48,7 +48,7 @@ const Footer = () => {
                 <Instagram size={24} />
               </a>
               <a
-                href="https://l.instagram.com/?u=https%3A%2F%2Fwa.me%2F5561983472867&e=AT13F6CzmLYDuHIUA-3tk60hs1N4JjY_DBWXnZzBpP_2dFuYWCkLTdQ0SMQRPbzXiEQETQ-lG__UaeRk0MLr4QnsRvpsFfEHJ_bQkZ-YvBvdh6pd"
+                href="https://api.whatsapp.com/send/?phone=5561983472867&text&type=phone_number&app_absent=0"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-green-200 hover:text-white transition-colors"

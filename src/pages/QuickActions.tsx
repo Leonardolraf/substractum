@@ -10,29 +10,23 @@ const QuickActions = () => {
 
   const quickActions = [
     {
-      title: "Adicionar Produto",
-      description: "Cadastrar novo produto no sistema",
-      icon: Plus,
-      onClick: () => navigate("/products")
-    },
-    {
       title: "Gerenciar Estoque",
       description: "Controlar níveis de estoque",
       icon: Package,
-      onClick: () => navigate("/products")
+      onClick: () => navigate("/my-products"),
     },
     {
       title: "Gerenciar Usuários",
       description: "Administrar contas de usuários",
       icon: Users,
-      onClick: () => navigate("/admin-dashboard")
+      onClick: () => navigate("/admin"), 
     },
     {
       title: "Configurações",
       description: "Ajustar configurações do sistema",
       icon: Settings,
-      onClick: () => navigate("/profile-admin")
-    }
+      onClick: () => navigate("/profile-admin"),
+    },
   ];
 
   return (

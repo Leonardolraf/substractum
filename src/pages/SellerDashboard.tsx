@@ -11,18 +11,33 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
+type SellerCustomer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+};
+
+
 const SellerDashboard = () => {
   const { toast } = useToast();
   const [orders, setOrders] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [customers, setCustomers] = useState<SellerCustomer[]>([]);
 
-  /* ============================================================
-     FETCH ORDERS + JOIN WITH ITEMS
-  ============================================================ */
+
+  type SellerCustomer = {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+
   useEffect(() => {
     fetchOrders();
+    fetchCustomers();
 
     const channel = supabase
       .channel("seller-orders-changes")
@@ -54,9 +69,6 @@ const SellerDashboard = () => {
     };
   }, []);
 
-  /* ============================================================
-     FETCH ORDERS WITH JOIN (REAL ITEMS)
-  ============================================================ */
   const fetchOrders = async () => {
     try {
       const { data, error } = await supabase
@@ -82,9 +94,46 @@ const SellerDashboard = () => {
     }
   };
 
-  /* ============================================================
-     FILTER ORDERS
-  ============================================================ */
+  const fetchCustomers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, username, email, phone")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      const mapped: SellerCustomer[] = (data ?? []).map((row: any) => {
+        const name =
+          row.full_name ||
+          row.username ||
+          "Usuário sem nome";
+
+        const email =
+          row.email ||
+          (typeof row.username === "string" && row.username.includes("@")
+            ? row.username
+            : "");
+
+        return {
+          id: row.id,
+          name,
+          email,
+          phone: row.phone || "",
+        };
+      });
+
+      setCustomers(mapped);
+    } catch (err) {
+      console.error("Erro ao carregar clientes:", err);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar a lista de clientes.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredOrders = (orders ?? []).filter((order) => {
     const name = order.customer_name ?? "";
     const address = order.shipping_address ?? "";
@@ -391,25 +440,54 @@ const SellerDashboard = () => {
               </Card>
             </TabsContent>
 
-            {/* ============================================================
-               TAB CLIENTES (placeholder)
-            ============================================================ */}
             <TabsContent value="customers">
               <Card>
                 <CardHeader>
-                  <CardTitle>Gerenciar Clientes</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Clientes
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Visualize os clientes cadastrados. Apenas leitura — sem edição.
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
-                    Funcionalidade de clientes em desenvolvimento.
-                  </p>
+                  {customers.length === 0 ? (
+                    <p className="text-sm text-gray-500">
+                      Nenhum cliente encontrado.
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 px-2">Nome</th>
+                            <th className="text-left py-2 px-2">Email</th>
+                            <th className="text-left py-2 px-2">Telefone</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {customers.map((customer) => (
+                            <tr key={customer.id} className="border-b last:border-0">
+                              <td className="py-2 px-2">
+                                {customer.name}
+                              </td>
+                              <td className="py-2 px-2">
+                                {customer.email || "-"}
+                              </td>
+                              <td className="py-2 px-2">
+                                {customer.phone || "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* ============================================================
-               TAB ENTREGAS
-            ============================================================ */}
             <TabsContent value="delivery">
               <Card>
                 <CardHeader>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,17 +39,20 @@ const Cart = () => {
     }
   };
 
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   const handleCheckout = () => {
-    navigate('/payment', {
+    navigate("/payment", {
       state: {
         cartItems: items,
         subtotal: total,
         shipping: 10,
         total: total + 10,
-        prescription: prescription?.name
-      }
+        prescription: prescription?.name,
+      },
     });
   };
 
@@ -64,15 +66,21 @@ const Cart = () => {
               <ShoppingBag className="w-8 h-8 mr-3" />
               Meu Carrinho
             </h1>
-            <p className="text-gray-600 mt-2">Revise seus itens antes de finalizar a compra</p>
+            <p className="text-gray-600 mt-2">
+              Revise seus itens antes de finalizar a compra
+            </p>
           </div>
 
           {items.length === 0 ? (
             <Card>
               <CardContent className="text-center py-12">
                 <ShoppingBag className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Seu carrinho está vazio</h3>
-                <p className="text-gray-600 mb-4">Adicione alguns produtos para começar suas compras</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Seu carrinho está vazio
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Adicione alguns produtos para começar suas compras
+                </p>
                 <Button onClick={handleContinueShopping}>
                   Continuar Comprando
                 </Button>
@@ -86,77 +94,103 @@ const Cart = () => {
                     <CardTitle>Itens no Carrinho ({items.length})</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:gap-4"
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-16 h-16 object-cover rounded"
-                        />
+                    {items.map((item) => {
+                      const imageSrc =
+                        item.imageUrl || "/placeholder.svg";
+                      const supplierName =
+                        (item.product as any)?.supplier ||
+                        (item.product as any)?.supplierName ||
+                        "";
 
-                        <div className="flex-1">
-                          <h3 className="font-medium">{item.name}</h3>
-                          <p className="text-sm text-gray-600">{item.supplier}</p>
-                          <p className="text-lg font-bold text-blue-600">
-                            R$ {item.price.toFixed(2)}
-                          </p>
-                        </div>
+                      return (
+                        <div
+                          key={item.productId}
+                          className="flex flex-col gap-3 p-4 border rounded-lg sm:flex-row sm:items-center sm:gap-4"
+                        >
+                          <img
+                            src={imageSrc}
+                            alt={item.name}
+                            className="w-16 h-16 object-cover rounded"
+                          />
 
-                        {/* CONTROLES (botões + input) */}
-                        <div className="flex items-center justify-between gap-2 sm:flex-col sm:items-end sm:gap-2">
-                          {/* Quantidade */}
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-7 w-7 sm:h-8 sm:w-8"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            >
-                              <Minus className="w-3 h-3" />
-                            </Button>
-
-                            <Input
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) =>
-                                updateQuantity(item.id, parseInt(e.target.value) || 1)
-                              }
-                              className="h-8 w-12 px-1 py-1 text-xs text-center sm:h-9 sm:w-16 sm:text-sm"
-                              min={1}
-                            />
-
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-7 w-7 sm:h-8 sm:w-8"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            >
-                              <Plus className="w-3 h-3" />
-                            </Button>
+                          <div className="flex-1">
+                            <h3 className="font-medium">{item.name}</h3>
+                            {supplierName && (
+                              <p className="text-sm text-gray-600">
+                                {supplierName}
+                              </p>
+                            )}
+                            <p className="text-lg font-bold text-blue-600">
+                              R$ {item.price.toFixed(2)}
+                            </p>
                           </div>
 
-                          {/* Botão de remover */}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              removeFromCart(item.id);
-                              toast({
-                                title: "Item removido",
-                                description: "O item foi removido do seu carrinho",
-                              });
-                            }}
-                            className="h-7 w-7 text-red-600 hover:text-red-700 sm:h-8 sm:w-8"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                          {/* CONTROLES (botões + input) */}
+                          <div className="flex items-center justify-between gap-2 sm:flex-col sm:items-end sm:gap-2">
+                            {/* Quantidade */}
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-7 w-7 sm:h-8 sm:w-8"
+                                onClick={() =>
+                                  updateQuantity(
+                                    item.productId,
+                                    item.quantity - 1
+                                  )
+                                }
+                              >
+                                <Minus className="w-3 h-3" />
+                              </Button>
 
+                              <Input
+                                type="number"
+                                value={item.quantity}
+                                onChange={(e) =>
+                                  updateQuantity(
+                                    item.productId,
+                                    parseInt(e.target.value) || 1
+                                  )
+                                }
+                                className="h-8 w-12 px-1 py-1 text-xs text-center sm:h-9 sm:w-16 sm:text-sm"
+                                min={1}
+                              />
+
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-7 w-7 sm:h-8 sm:w-8"
+                                onClick={() =>
+                                  updateQuantity(
+                                    item.productId,
+                                    item.quantity + 1
+                                  )
+                                }
+                              >
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+
+                            {/* Botão de remover */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                removeFromCart(item.productId);
+                                toast({
+                                  title: "Item removido",
+                                  description:
+                                    "O item foi removido do seu carrinho",
+                                });
+                              }}
+                              className="h-7 w-7 text-red-600 hover:text-red-700 sm:h-8 sm:w-8"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </CardContent>
                 </Card>
               </div>
@@ -183,7 +217,10 @@ const Cart = () => {
                     </div>
 
                     <div className="border-t pt-4">
-                      <Label htmlFor="prescription" className="text-sm font-medium mb-2 block">
+                      <Label
+                        htmlFor="prescription"
+                        className="text-sm font-medium mb-2 block"
+                      >
                         Receita Médica (Opcional)
                       </Label>
                       <div className="flex items-center gap-2">
@@ -199,7 +236,9 @@ const Cart = () => {
                           className="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer hover:bg-accent transition-colors w-full justify-center"
                         >
                           <Upload className="w-4 h-4" />
-                          {prescription ? prescription.name : "Anexar Receita"}
+                          {prescription
+                            ? prescription.name
+                            : "Anexar Receita"}
                         </Label>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
